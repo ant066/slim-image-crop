@@ -1,0 +1,60 @@
+.spe-main {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .spe-toolbar {
+    width: 100%;
+    background: #dedede;
+    padding: 5px 10px;
+    border-bottom: 1px solid #dddddd;
+
+    .spe-toolbar-item {
+      cursor: pointer;
+      padding: 5px;
+      display: inline-block;
+      margin-right: 5px;
+
+      &:hover {
+        background: #bfbfbf;
+      }
+      svg {
+        height: 24px;
+        width: 24px;
+      }
+    }
+  }
+
+  .spe-canvas-wrapper {
+    flex-grow: 1;
+    flex-shrink: 0;
+    position: relative;
+
+    canvas {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      display: block;
+      max-width: calc(100% - 40px);
+      transform: translate(-50%, -50%);
+      max-height: calc(100% - 40px);
+    }
+  }
+
+  .spe-sub-toolbar {
+    max-height: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    width: 100%;
+    background: #f2f2f2;
+    border-bottom: 1px solid #dddddd;
+    overflow: hidden;
+    display: none;
+  }
+}
