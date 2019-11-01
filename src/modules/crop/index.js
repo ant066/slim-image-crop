@@ -23,6 +23,10 @@ class Crop {
         this.cropFrameMouseMoveHandler = this._cropFrameMouseMoveHandler.bind(this)
         this.cropFrameMouseUpHandler = this._cropFrameMouseUpHandler.bind(this);
         this.setCropFramePosition = this.setCropFramePosition.bind(this)
+        this.setCropFrameSize = this.setCropFrameSize.bind(this);
+        this.resizeMouseDownHandler = this.resizeMouseDownHandler.bind(this)
+        this.resizeMouseMoveHandler = this.resizeMouseMoveHandler.bind(this)
+        this.resizeMouseUpHandler = this.resizeMouseUpHandler.bind(this)
         this.init();
     }
 
@@ -64,8 +68,9 @@ class Crop {
         return menuItem;
     }
 
-    _initCropFrame(ratio) {
+    _initCropFrame(ratio = null) {
         return () => {
+            this.ratio = ratio;
             const rect = this.edtior.canvasEl.getBoundingClientRect();
             const { left, top, bottom, right, height, width } = rect;
 
@@ -76,15 +81,35 @@ class Crop {
                 this.cropFrame.addEventListener('mousemove', this.cropFrameMouseMoveHandler)
                 this.cropFrame.addEventListener('mouseup', this.cropFrameMouseUpHandler)
                 this.cropFrame.addEventListener('mouseout', this.cropFrameMouseUpHandler)
+
+                this.cropFrame.innerHTML = `<div class="spe-frame-resize spe-frame-tl" data-value="TL"></div>
+                                            <div class="spe-frame-resize spe-frame-tr" data-value="TR"></div>
+                                            <div class="spe-frame-resize spe-frame-bl" data-value="BL"></div>
+                                            <div class="spe-frame-resize spe-frame-br" data-value="BR"></div>`;
+
+                const resizeItems = this.cropFrame.getElementsByClassName('spe-frame-resize');
+                [...resizeItems].forEach(item => {
+                    item.addEventListener('mousedown', this.resizeMouseDownHandler)
+                })
+
+
                 this.menu.appendChild(this.cropFrame);
             }
 
-            const cropWidth = width / 2;
-            const cropHeight = ratio ? cropWidth * ratio : height / 2;
+            let cropWidth = width / 2;
+            let cropHeight = ratio ? cropWidth * ratio : height / 2;
 
-            this.cropFrame.style.width = cropWidth
-            this.cropFrame.style.height = cropHeight
+            if (cropHeight > height) {
+                cropHeight = height;
+                if (ratio) cropWidth = cropHeight / ratio;
+            } else {
+                if (cropWidth > width) {
+                    cropWidth = width;
+                    if (ratio) cropHeight = cropWidth * ratio;
+                }
+            }
 
+            this.setCropFrameSize(cropWidth, cropHeight)
             this.setCropFramePosition((left + right - cropWidth) / 2, (top + bottom - cropHeight) / 2)
         }
     }
@@ -130,6 +155,111 @@ class Crop {
 
         this.cropFrame.style.top = y;
         this.cropFrame.style.left = x
+    }
+
+    setCropFrameSize(w, h) {
+        this.cropFrame.style.width = w
+        this.cropFrame.style.height = h
+    }
+
+    resizeMouseDownHandler(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const target = e.target;
+        this.resizeDirection = target.getAttribute('data-value');
+
+        const rect = this.cropFrame.getBoundingClientRect();
+        const { left, top, bottom, right, width, height } = rect;
+
+        this.oldWidth = width;
+        this.oldHeight = height;
+        this.oldLeft = left;
+        this.oldTop = top;
+        this.oldBottom = bottom;
+        this.oldRight = right;
+        document.addEventListener('mousemove', this.resizeMouseMoveHandler)
+        document.addEventListener('mouseup', this.resizeMouseUpHandler)
+
+    }
+    resizeMouseMoveHandler(e) {
+        if (!this.resizeDirection) return;
+        const { clientX, clientY } = e;
+        let newWidth, newHeight, newTop, newLeft;
+        switch (this.resizeDirection) {
+            case 'TL': {
+                newWidth = this.oldWidth - (clientX - this.oldLeft);
+                newHeight = this.oldHeight - (clientY - this.oldTop);
+                newTop = clientY;
+                newLeft = clientX;
+                if (this.ratio) {
+                    newHeight = newWidth * this.ratio;
+                    this.setCropFrameSize(newWidth, newHeight)
+                    this.cropFrame.style.top = 'initial';
+                    this.cropFrame.style.left = 'initial';
+                    this.cropFrame.style.right = this.oldLeft;
+                    this.cropFrame.style.bottom = this.oldTop;
+                    return;
+                }
+                break;
+            }
+            case 'TR': {
+                newWidth = this.oldWidth + (clientX - this.oldRight);
+                newHeight = this.oldHeight - (clientY - this.oldTop);
+                newTop = clientY;
+                newLeft = this.oldLeft;
+                if (this.ratio) {
+                    newHeight = newWidth * this.ratio;
+                    this.setCropFrameSize(newWidth, newHeight)
+                    this.cropFrame.style.top = 'initial';
+                    this.cropFrame.style.left = this.oldLeft;
+                    this.cropFrame.style.right = 'initial';
+                    this.cropFrame.style.bottom = this.oldTop;
+
+                    return;
+                }
+                break;
+            }
+            case 'BR': {
+                newWidth = this.oldWidth + (clientX - this.oldRight);
+                newHeight = this.oldHeight + (clientY - this.oldBottom);
+                newTop = this.oldTop;
+                newLeft = this.oldLeft;
+                if (this.ratio) {
+                    newHeight = newWidth * this.ratio;
+                    this.setCropFrameSize(newWidth, newHeight)
+                    this.cropFrame.style.right = 'initial'
+                    this.cropFrame.style.bottom = 'initial'
+                    this.cropFrame.style.top = this.oldTop;
+                    this.cropFrame.style.left = this.oldLeft
+                    return;
+                }
+                break;
+            }
+            case 'BL': {
+                newWidth = this.oldWidth - (clientX - this.oldLeft);
+                newHeight = this.oldHeight + (clientY - this.oldBottom);
+                newTop = this.oldTop;
+                newLeft = clientX;
+                if (this.ratio) {
+                    newHeight = newWidth * this.ratio;
+                    this.setCropFrameSize(newWidth, newHeight)
+                    this.cropFrame.style.top = this.oldTop;
+                    this.cropFrame.style.left = 'initial';
+                    this.cropFrame.style.right = this.oldLeft;
+                    this.cropFrame.style.bottom = 'initial';
+                    return;
+                }
+                break;
+            }
+        }
+        if (newHeight < 0 || newWidth < 0) return;
+        this.setCropFrameSize(newWidth, newHeight)
+        this.setCropFramePosition(newLeft, newTop);
+    }
+    resizeMouseUpHandler(e) {
+        this.resizeDirection = null;
+        document.removeEventListener('mousemove', this.resizeMouseMoveHandler)
+        document.removeEventListener('mouseup', this.resizeMouseUpHandler)
     }
 }
 export default Crop;
