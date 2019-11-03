@@ -100,6 +100,7 @@ class Editor {
 
     _draw(url) {
         const img = new Image;
+        img.setAttribute('crossOrigin','anonymous')
         img.src = url;
         img.onload = () => {
             this.canvasEl.setAttribute('height', img.height + 'px')
