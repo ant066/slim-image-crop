@@ -1,5 +1,6 @@
 import './assets/scss/editor.scss';
 import CropModule from './modules/crop';
+import TextModule from './modules/text';
 
 import TOOLBAR_DEFAULT_ICON from './assets/icon/default.svg';
 
@@ -44,6 +45,9 @@ class Editor {
             switch (modl) {
                 case 'crop': {
                     this.modules.push(new CropModule(this));
+                }
+                case 'text': {
+                    this.modules.push(new TextModule(this));
                 }
                 default:
             }
@@ -100,7 +104,7 @@ class Editor {
 
     _draw(url) {
         const img = new Image;
-        img.setAttribute('crossOrigin','anonymous')
+        // img.setAttribute('crossOrigin','anonymous')
         img.src = url;
         img.onload = () => {
             this.canvasEl.setAttribute('height', img.height + 'px')

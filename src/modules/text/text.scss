@@ -1,0 +1,52 @@
+.spe-text-menu {
+  display: flex;
+  * {
+    margin-right: 5px;
+  }
+  input {
+    width: 200px;
+    height: 32px;
+    border-radius: 3px;
+    border: 1px solid #e5e5e5;
+    padding: 0 5px;
+  }
+  .pickr {
+    position: relative;
+
+    .pcr-button {
+      height: 32px;
+      width: 32px;
+    }
+  }
+  select {
+    width: 150px;
+  }
+}
+.spe-text-input {
+  position: fixed;
+  border: 0px solid #fff;
+  z-index: 9;
+  background: transparent;
+  outline: none;
+  &:focus {
+    border: 1px solid #fff;
+    &::before {
+      content: "";
+    }
+  }
+}
+.pse-text-move-icon {
+  position: fixed;
+  height: 30px;
+  width: 30px;
+  z-index: 9;
+  fill: #fff;
+  cursor: pointer;
+
+  svg {
+    height: 100%;
+    width: 100%;
+    fill: #fff;
+    color: #fff;
+  }
+}

@@ -36,11 +36,7 @@ class Crop {
   }
 
   _init() {
-    if (this.menu) {
-      return this.menu;
-    } else {
-      return (this.menu = this.createMenu());
-    }
+    return this.menu ? this.menu : this.menu = this.createMenu();
   }
 
   _createMenu() {
@@ -295,7 +291,7 @@ class Crop {
     const x = left - canvasLeft;
     const y = top - canvasTop;
 
-    const base64 =  this.edtior.ctx.getImageData(x,y,width,height);
+    const base64 = this.edtior.ctx.getImageData(x, y, width, height);
     console.log(base64);
     // console.log(cropCanvas(this.edtior.canvasEl, x, y, width, height));
   }

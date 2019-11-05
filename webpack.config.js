@@ -35,7 +35,30 @@ module.exports = {
             {
                 test: /\.svg$/,
                 loader: 'svg-inline-loader'
-            }
+            },
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader'],
+            },
+            // {
+            //     test: /\.(ttf|woff?g|gif)$/i,
+            //     use: [
+            //         {
+            //             loader: 'file-loader',
+            //         },
+            //     ],
+            // },
+            {
+                test: /\.(woff|woff2|ttf|otf)$/,
+                loader: 'file-loader',
+                include: [/fonts/],
+
+                options: {
+                    name: '[hash].[ext]',
+                    outputPath: 'css/',
+                    publicPath: url => '../css/' + url
+                }
+            },
         ],
     }
 };
