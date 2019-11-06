@@ -1,14 +1,13 @@
 import "./text.scss";
 import TEXT_IC from "../../assets/icon/text.svg";
-import MOVE_IC from "../../assets/icon/move.svg";
+import SAVE_IC from "../../assets/icon/save.svg";
 import '@simonwep/pickr/dist/themes/classic.min.css';   // 'classic' theme
 import Pickr from '@simonwep/pickr';
 import { removeEl } from "../../utils/dom";
-import '../../assets/fonts/style.css';
 
 const DEFAULT_CONFIG = {
     icon: TEXT_IC,
-    title: "Crop",
+    title: "Text",
     menu: true
 };
 
@@ -66,7 +65,7 @@ class Text {
                         <select name="font-family" id="font-family" class="spe-text-font-family">
                             <option value="Times New Roman">Times New Roman</option>
                         </select>
-                        <div class="spe-text-save">SAVE</div>
+                        <div class="spe-text-save">${SAVE_IC}</div>
                     </div>
                     <div class="spe-text-item-list"></div>
                     `;
@@ -98,6 +97,7 @@ class Text {
         this.pickr = Pickr.create({
             el: this.colorPickerEl,
             theme: 'classic', // or 'monolith', or 'nano'
+            default: '#F44336',
             swatches: [
                 'rgba(244, 67, 54, 1)',
                 'rgba(233, 30, 99, 0.95)',
@@ -164,7 +164,6 @@ class Text {
     initMoveBtn() {
         this.moveBtn = document.createElement('div');
         this.moveBtn.classList.add('pse-text-move-icon')
-        this.moveBtn.innerHTML = MOVE_IC;
         this.moveBtn.style.display = 'none'
         this.moveBtn.addEventListener('mousedown', () => this.handleMouseMoveStart = true)
         document.addEventListener('mousemove', (e) => {
@@ -173,19 +172,19 @@ class Text {
                 const { clientX, clientY } = e;
                 this.moveBtn.style.top = clientY + 'px';
                 this.moveBtn.style.left = clientX + 'px';
-                this.lastFocus.style.top = clientY + 30 + 'px';
-                this.lastFocus.style.left = clientX - rect.width / 2 + 15 + 'px';
+                this.lastFocus.style.top = clientY + 15 + 'px';
+                this.lastFocus.style.left = clientX - rect.width / 2 + 10 + 'px';
+                document.addEventListener('mouseup', () => this.handleMouseMoveStart = false)
             }
         })
-        document.addEventListener('mouseup', () => this.handleMouseMoveStart = false)
         this.menu.appendChild(this.moveBtn)
     }
 
     handleMoveBtnPos() {
         const rect = this.lastFocus.getBoundingClientRect();
         this.moveBtn.style.display = 'block';
-        this.moveBtn.style.top = rect.top - 30 + 'px';
-        this.moveBtn.style.left = rect.left + (rect.width / 2) - 15 + 'px';
+        this.moveBtn.style.top = rect.top - 15 + 'px';
+        this.moveBtn.style.left = rect.left + (rect.width / 2) - 5 + 'px';
         this.moveBtn.style.position = 'fixed';
     }
 

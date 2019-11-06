@@ -24,9 +24,12 @@
       &:hover {
         background: #bfbfbf;
       }
+      
       svg {
         height: 24px;
         width: 24px;
+        user-select: none;
+        pointer-events: none;
       }
     }
   }

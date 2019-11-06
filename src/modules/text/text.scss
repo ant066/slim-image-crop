@@ -1,6 +1,6 @@
 .spe-text-menu {
   display: flex;
-  * {
+  & > * {
     margin-right: 5px;
   }
   input {
@@ -20,6 +20,7 @@
   }
   select {
     width: 150px;
+    height: 32px;
   }
 }
 .spe-text-input {
@@ -28,8 +29,10 @@
   z-index: 9;
   background: transparent;
   outline: none;
+
   &:focus {
     border: 1px solid #fff;
+    box-shadow: 0px 0px 4px -1px #383838;
     &::before {
       content: "";
     }
@@ -37,16 +40,44 @@
 }
 .pse-text-move-icon {
   position: fixed;
-  height: 30px;
-  width: 30px;
+  height: 10px;
+  width: 11px;
   z-index: 9;
   fill: #fff;
-  cursor: pointer;
+  cursor: move;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0px 0px 4px -1px #383838;
+
+  &::after {
+    content: "";
+    height: 5px;
+    width: 1px;
+    position: absolute;
+    top: 8px;
+    background: #fff;
+    left: 3px;
+  }
 
   svg {
     height: 100%;
     width: 100%;
     fill: #fff;
     color: #fff;
+  }
+}
+.spe-text-save {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  cursor: pointer;
+  justify-content: center;
+
+  &:hover {
+    background: #e5e5e5;
+  }
+  svg {
+    height: 30px;
+    width: 30px;
   }
 }

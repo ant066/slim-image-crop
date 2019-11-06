@@ -45,9 +45,11 @@ class Editor {
             switch (modl) {
                 case 'crop': {
                     this.modules.push(new CropModule(this));
+                    break;
                 }
                 case 'text': {
                     this.modules.push(new TextModule(this));
+                    break;
                 }
                 default:
             }
@@ -86,7 +88,7 @@ class Editor {
                 }
                 if (modl.action) modl.action();
             });
-
+            console.log(toolbarItem);
             this.toolbarEl.appendChild(toolbarItem);
         });
         this.el.appendChild(this.toolbarEl);
