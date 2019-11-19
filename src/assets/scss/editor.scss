@@ -24,7 +24,7 @@
       &:hover {
         background: #bfbfbf;
       }
-      
+
       svg {
         height: 24px;
         width: 24px;
@@ -60,4 +60,9 @@
     overflow: hidden;
     display: none;
   }
+}
+.spe-disabled {
+  opacity: 0.5;
+  user-select: none;
+  pointer-events: none;
 }

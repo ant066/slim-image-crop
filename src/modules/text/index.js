@@ -13,8 +13,8 @@ const DEFAULT_CONFIG = {
 
 
 class Text {
-    constructor(edtior, options = {}) {
-        this.edtior = edtior;
+    constructor(editor, options = {}) {
+        this.editor = editor;
         this.options = { ...DEFAULT_CONFIG, options };
         this.texts = [];
         this.textsElements = [];
@@ -45,8 +45,8 @@ class Text {
     }
 
     _action() {
-        this.edtior.canvasEl.style.cursor = 'text';
-        this.edtior.canvasEl.addEventListener('click', this.createText)
+        this.editor.canvasEl.style.cursor = 'text';
+        this.editor.canvasEl.addEventListener('click', this.createText)
     }
 
     _createMenu() {
@@ -197,25 +197,26 @@ class Text {
         el.style.color = text.color;
         el.style.fontSize = text.size;
         el.style.fontFamily = text.font;
+
         el.value = text.text;
         return el;
     }
 
     _applyTexts() {
-        const canvasRect = this.edtior.canvasEl.getBoundingClientRect();
-        const ratio = this.edtior.canvasEl.height / canvasRect.height;
+        const canvasRect = this.editor.canvasEl.getBoundingClientRect();
+        const ratio = this.editor.canvasEl.height / canvasRect.height;
         [...this.itemsList.querySelectorAll('.spe-text-input')].forEach(text => {
             const rect = text.getBoundingClientRect();
             const style = window.getComputedStyle(text, null);
             const size = parseInt(style.getPropertyValue('font-size'), 10)
 
             const exacX = (rect.left - canvasRect.left) * ratio;
-            const exacY = (rect.top - canvasRect.top) * ratio;
+            const exacY = (rect.top - canvasRect.top - 2) * ratio;
             text.exacX = exacX;
             text.exacY = exacY + (size * ratio);
-            this.edtior.ctx.font = `${size * ratio}px ` + style.getPropertyValue('font-family')
-            this.edtior.ctx.fillStyle = style.getPropertyValue('color');
-            this.edtior.ctx.fillText(text.value, text.exacX, text.exacY);
+            this.editor.ctx.font = `${size * ratio}px ` + style.getPropertyValue('font-family')
+            this.editor.ctx.fillStyle = style.getPropertyValue('color');
+            this.editor.ctx.fillText(text.value, text.exacX, text.exacY);
             removeEl(text)
         });
         this.moveBtn.style.display = 'none'

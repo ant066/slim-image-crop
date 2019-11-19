@@ -10,8 +10,8 @@ const DEFAULT_CONFIG = {
 };
 
 class Crop {
-  constructor(edtior, options = {}) {
-    this.edtior = edtior;
+  constructor(editor, options = {}) {
+    this.editor = editor;
     this.options = { ...DEFAULT_CONFIG, options };
 
     this.init = this._init.bind(this);
@@ -75,7 +75,7 @@ class Crop {
   _initCropFrame(ratio = null) {
     return () => {
       this.ratio = ratio;
-      const rect = this.edtior.canvasEl.getBoundingClientRect();
+      const rect = this.editor.canvasEl.getBoundingClientRect();
       const { left, top, bottom, right, height, width } = rect;
 
       if (!this.cropFrame) {
@@ -161,7 +161,7 @@ class Crop {
   }
 
   setCropFramePosition(x, y) {
-    const rect = this.edtior.canvasEl.getBoundingClientRect();
+    const rect = this.editor.canvasEl.getBoundingClientRect();
     const { left, top, bottom, right } = rect;
 
     const cropFrameWidth = parseInt(this.cropFrame.style.width, 10);
@@ -280,20 +280,18 @@ class Crop {
     document.removeEventListener("mouseup", this.resizeMouseUpHandler);
   }
   cropAction() {
-    // this.cropFrame
     const rect = this.cropFrame.getBoundingClientRect();
     const { left, top, bottom, right, width, height } = rect;
     const {
       left: canvasLeft,
       top: canvasTop
-    } = this.edtior.canvasEl.getBoundingClientRect();
+    } = this.editor.canvasEl.getBoundingClientRect();
 
     const x = left - canvasLeft;
     const y = top - canvasTop;
 
-    const base64 = this.edtior.ctx.getImageData(x, y, width, height);
-    console.log(base64);
-    // console.log(cropCanvas(this.edtior.canvasEl, x, y, width, height));
+    const base64 = cropCanvas(this.editor.canvasEl, x, y, width, height);
+    this.editor.draw(base64);
   }
 }
 export default Crop;

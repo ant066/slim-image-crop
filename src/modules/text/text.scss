@@ -29,6 +29,8 @@
   z-index: 9;
   background: transparent;
   outline: none;
+  border-width: 2px;
+  border-style: hidden;
 
   &:focus {
     border: 1px solid #fff;

@@ -1,17 +1,19 @@
 import './assets/scss/editor.scss';
 import CropModule from './modules/crop';
 import TextModule from './modules/text';
+import ImageModule from './modules/image';
 
 import TOOLBAR_DEFAULT_ICON from './assets/icon/default.svg';
 
 class Editor {
     _bind() {
         this.initWrapper = this._initWrapper.bind(this);
-        this.initToolbar = this._initToolbar.bind(this)
-        this.initModules = this._initModules.bind(this)
-        this.initSubToolbar = this._initSubToolbar.bind(this)
-        this.initCanvas = this._initCanvas.bind(this)
-        this.draw = this._draw.bind(this)
+        this.initToolbar = this._initToolbar.bind(this);
+        this.initModules = this._initModules.bind(this);
+        this.initSubToolbar = this._initSubToolbar.bind(this);
+        this.initCanvas = this._initCanvas.bind(this);
+        this.draw = this._draw.bind(this);
+        this.getImage = this.getImage.bind(this);
 
     }
 
@@ -51,6 +53,10 @@ class Editor {
                     this.modules.push(new TextModule(this));
                     break;
                 }
+                case 'image': {
+                    this.modules.push(new ImageModule(this));
+                    break;
+                }
                 default:
             }
         })
@@ -88,7 +94,6 @@ class Editor {
                 }
                 if (modl.action) modl.action();
             });
-            console.log(toolbarItem);
             this.toolbarEl.appendChild(toolbarItem);
         });
         this.el.appendChild(this.toolbarEl);
@@ -106,13 +111,16 @@ class Editor {
 
     _draw(url) {
         const img = new Image;
-        // img.setAttribute('crossOrigin','anonymous')
+        img.setAttribute('crossOrigin', 'anonymous');
         img.src = url;
         img.onload = () => {
             this.canvasEl.setAttribute('height', img.height + 'px')
             this.canvasEl.setAttribute('width', img.width + 'px')
             this.ctx.drawImage(img, 0, 0);
         };
+    }
+    getImage() {
+        return this.canvasEl.toDataURL("image/png");
     }
 }
 
