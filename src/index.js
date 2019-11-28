@@ -1,6 +1,6 @@
 import './assets/scss/editor.scss';
 import CropModule from './modules/crop';
-import TextModule from './modules/text';
+// import TextModule from './modules/text';
 import ImageModule from './modules/image';
 
 import TOOLBAR_DEFAULT_ICON from './assets/icon/default.svg';
@@ -49,10 +49,10 @@ class Editor {
                     this.modules.push(new CropModule(this));
                     break;
                 }
-                case 'text': {
-                    this.modules.push(new TextModule(this));
-                    break;
-                }
+                // case 'text': {
+                //     this.modules.push(new TextModule(this));
+                //     break;
+                // }
                 case 'image': {
                     this.modules.push(new ImageModule(this));
                     break;
@@ -119,8 +119,9 @@ class Editor {
             this.ctx.drawImage(img, 0, 0);
         };
     }
+
     getImage() {
-        return this.canvasEl.toDataURL("image/png");
+        return this.canvasEl.toDataURL();
     }
 }
 

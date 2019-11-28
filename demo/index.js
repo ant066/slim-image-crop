@@ -4,3 +4,8 @@ const url = 'https://www.elle.vn/wp-content/uploads/2019/03/20/elle-viet-nam-pho
 const url2 = 'https://znews-photo.zadn.vn/Uploaded/mne_jwmc2/2019_11_18/75043218_495168741082507_428919112333262848_n_1.jpg'
 editor.draw(url2)
 window.editor = editor
+const button = document.getElementsByTagName('button')[0];
+button.addEventListener('click', () => {
+    const base64 = editor.getImage();
+    console.log(base64)
+})
