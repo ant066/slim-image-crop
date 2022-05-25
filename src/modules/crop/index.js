@@ -6,7 +6,7 @@ import SAVE_IC from "../../assets/icon/save.svg";
 const DEFAULT_CONFIG = {
   icon: CROP_IC,
   title: "Crop",
-  menu: true
+  menu: true,
 };
 
 class Crop {
@@ -14,10 +14,7 @@ class Crop {
     this.editor = editor;
     this.options = { ...DEFAULT_CONFIG, options };
 
-    this.init = this._init.bind(this);
     this.action = this._action.bind(this);
-    this.createMenu = this._createMenu.bind(this);
-    this.createMenuItem = this._createMenuItem.bind(this);
     this.initCropFrame = this._initCropFrame.bind(this);
     this.cropFrameMouseDownHandler = this._cropFrameMouseDownHandler.bind(this);
     this.cropFrameMouseMoveHandler = this._cropFrameMouseMoveHandler.bind(this);
@@ -28,110 +25,65 @@ class Crop {
     this.resizeMouseMoveHandler = this.resizeMouseMoveHandler.bind(this);
     this.resizeMouseUpHandler = this.resizeMouseUpHandler.bind(this);
     this.cropAction = this.cropAction.bind(this);
-    this.init();
+    this.getCrop = this.getCrop.bind(this);
   }
 
   _action() {
-    this.initCropFrame()();
-  }
-
-  _init() {
-    return this.menu ? this.menu : this.menu = this.createMenu();
-  }
-
-  _createMenu() {
-    const menu = document.createElement("div");
-    menu.classList.add("spe-crop-menu");
-    const items = [
-      { title: "Free", icon: CROP_FRAME_IC, action: this._initCropFrame() },
-      { title: "Square", icon: CROP_FRAME_IC, action: this._initCropFrame(1) },
-      {
-        title: "16/9",
-        icon: CROP_FRAME_IC,
-        action: this._initCropFrame(16 / 9)
-      },
-      { title: "5:4", icon: CROP_FRAME_IC, action: this._initCropFrame(5 / 4) },
-      { title: "4:3", icon: CROP_FRAME_IC, action: this._initCropFrame(4 / 3) },
-      { title: "Save", icon: SAVE_IC, action: this.cropAction }
-    ];
-
-    items.forEach(item => {
-      menu.appendChild(this._createMenuItem(item));
-    });
-    return menu;
-  }
-
-  _createMenuItem(data) {
-    const { icon, title, action } = data;
-    const menuItem = document.createElement("div");
-    menuItem.classList.add("spe-crop-menu-item");
-    menuItem.innerHTML =
-      icon + `<div class='spe-crop-menu-item-title'>${title}</div>`;
-    menuItem.setAttribute("title", title);
-    menuItem.addEventListener("click", action);
-    return menuItem;
+    this.initCropFrame();
   }
 
   _initCropFrame(ratio = null) {
-    return () => {
-      this.ratio = ratio;
-      const rect = this.editor.canvasEl.getBoundingClientRect();
-      const { left, top, bottom, right, height, width } = rect;
+    this.ratio = ratio;
+    const rect = this.editor.canvasEl.getBoundingClientRect();
 
-      if (!this.cropFrame) {
-        this.cropFrame = document.createElement("div");
-        this.cropFrame.classList.add("spe-crop-frame");
-        this.cropFrame.addEventListener(
-          "mousedown",
-          this.cropFrameMouseDownHandler
-        );
-        this.cropFrame.addEventListener(
-          "mousemove",
-          this.cropFrameMouseMoveHandler
-        );
-        this.cropFrame.addEventListener(
-          "mouseup",
-          this.cropFrameMouseUpHandler
-        );
-        this.cropFrame.addEventListener(
-          "mouseout",
-          this.cropFrameMouseUpHandler
-        );
+    const { left, top, bottom, right, height, width } = rect;
 
-        this.cropFrame.innerHTML = `<div class="spe-frame-resize spe-frame-tl" data-value="TL"></div>
+    if (!this.cropFrame) {
+      this.cropFrame = document.createElement("div");
+      this.cropFrame.classList.add("spe-crop-frame");
+      this.cropFrame.addEventListener(
+        "mousedown",
+        this.cropFrameMouseDownHandler
+      );
+      this.cropFrame.addEventListener(
+        "mousemove",
+        this.cropFrameMouseMoveHandler
+      );
+      this.cropFrame.addEventListener("mouseup", this.cropFrameMouseUpHandler);
+      this.cropFrame.addEventListener("mouseout", this.cropFrameMouseUpHandler);
+
+      this.cropFrame.innerHTML = `<div class="spe-frame-resize spe-frame-tl" data-value="TL"></div>
                                             <div class="spe-frame-resize spe-frame-tr" data-value="TR"></div>
                                             <div class="spe-frame-resize spe-frame-bl" data-value="BL"></div>
                                             <div class="spe-frame-resize spe-frame-br" data-value="BR"></div>`;
 
-        const resizeItems = this.cropFrame.getElementsByClassName(
-          "spe-frame-resize"
-        );
-        [...resizeItems].forEach(item => {
-          item.addEventListener("mousedown", this.resizeMouseDownHandler);
-        });
+      const resizeItems =
+        this.cropFrame.getElementsByClassName("spe-frame-resize");
+      [...resizeItems].forEach((item) => {
+        item.addEventListener("mousedown", this.resizeMouseDownHandler);
+      });
+      console.log(editor);
+      editor.appendChild(this.cropFrame);
+    }
 
-        this.menu.appendChild(this.cropFrame);
+    let cropWidth = width / 2;
+    let cropHeight = ratio ? cropWidth * ratio : height / 2;
+
+    if (cropHeight > height) {
+      cropHeight = height;
+      if (ratio) cropWidth = cropHeight / ratio;
+    } else {
+      if (cropWidth > width) {
+        cropWidth = width;
+        if (ratio) cropHeight = cropWidth * ratio;
       }
+    }
 
-      let cropWidth = width / 2;
-      let cropHeight = ratio ? cropWidth * ratio : height / 2;
-
-      if (cropHeight > height) {
-        cropHeight = height;
-        if (ratio) cropWidth = cropHeight / ratio;
-      } else {
-        if (cropWidth > width) {
-          cropWidth = width;
-          if (ratio) cropHeight = cropWidth * ratio;
-        }
-      }
-
-      this.setCropFrameSize(cropWidth, cropHeight);
-      this.setCropFramePosition(
-        (left + right - cropWidth) / 2,
-        (top + bottom - cropHeight) / 2
-      );
-    };
+    this.setCropFrameSize(cropWidth, cropHeight);
+    this.setCropFramePosition(
+      (left + right - cropWidth) / 2,
+      (top + bottom - cropHeight) / 2
+    );
   }
 
   _cropFrameMouseDownHandler(e) {
@@ -279,19 +231,31 @@ class Crop {
     document.removeEventListener("mousemove", this.resizeMouseMoveHandler);
     document.removeEventListener("mouseup", this.resizeMouseUpHandler);
   }
+
   cropAction() {
     const rect = this.cropFrame.getBoundingClientRect();
     const { left, top, bottom, right, width, height } = rect;
-    const {
-      left: canvasLeft,
-      top: canvasTop
-    } = this.editor.canvasEl.getBoundingClientRect();
+    const { left: canvasLeft, top: canvasTop } =
+      this.editor.canvasEl.getBoundingClientRect();
 
     const x = left - canvasLeft;
     const y = top - canvasTop;
 
     const base64 = cropCanvas(this.editor.canvasEl, x, y, width, height);
-    this.editor.draw(base64);
+    return this.editor.draw(base64);
+  }
+
+  getCrop() {
+    const rect = this.cropFrame.getBoundingClientRect();
+    const { left, top, bottom, right, width, height } = rect;
+    const { left: canvasLeft, top: canvasTop } =
+      this.editor.canvasEl.getBoundingClientRect();
+
+    const x = left - canvasLeft;
+    const y = top - canvasTop;
+
+    const base64 = cropCanvas(this.editor.canvasEl, x, y, width, height);
+    return base64;
   }
 }
 export default Crop;

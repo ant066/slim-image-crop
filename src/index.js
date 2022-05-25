@@ -1,129 +1,145 @@
-import './assets/scss/editor.scss';
-import CropModule from './modules/crop';
-// import TextModule from './modules/text';
-import ImageModule from './modules/image';
-
-import TOOLBAR_DEFAULT_ICON from './assets/icon/default.svg';
+import "./assets/scss/editor.scss";
+import CropModule from "./modules/crop";
+import TOOLBAR_DEFAULT_ICON from "./assets/icon/default.svg";
 
 class Editor {
-    _bind() {
-        this.initWrapper = this._initWrapper.bind(this);
-        this.initToolbar = this._initToolbar.bind(this);
-        this.initModules = this._initModules.bind(this);
-        this.initSubToolbar = this._initSubToolbar.bind(this);
-        this.initCanvas = this._initCanvas.bind(this);
-        this.draw = this._draw.bind(this);
-        this.getImage = this.getImage.bind(this);
+  _bind() {
+    this.initWrapper = this._initWrapper.bind(this);
+    this.initToolbar = this._initToolbar.bind(this);
+    this.initModules = this._initModules.bind(this);
+    this.initSubToolbar = this._initSubToolbar.bind(this);
+    this.initCanvas = this._initCanvas.bind(this);
+    this.draw = this._draw.bind(this);
+    this.getImage = this.getImage.bind(this);
+    this.crop = this.crop.bind(this);
+    this.setCropRatio = this.setCropRatio.bind(this);
+  }
 
+  constructor(wrapperEl, options = {}) {
+    this._bind.call(this);
+
+    if (!this.initWrapper(wrapperEl))
+      throw new Error("Wrapper element must be query string or Element!");
+
+    this.initModules(options.modules);
+    // this.initToolbar();
+    // this.initSubToolbar();
+    this.initCanvas();
+  }
+
+  _initWrapper(wrapperEl = "") {
+    if (typeof wrapperEl === "string") {
+      this.wrapperEl = document.querySelector(wrapperEl);
+    } else {
+      this.wrapperEl = wrapperEl;
     }
+    if (!(this.wrapperEl instanceof HTMLElement)) return false;
+    this.el = document.createElement("div");
+    this.el.classList.add("spe-main");
+    this.wrapperEl.appendChild(this.el);
+    return true;
+  }
 
-    constructor(wrapperEl, options = {}) {
-        this._bind.call(this);
-
-        if (!this.initWrapper(wrapperEl)) throw new Error('Wrapper element must be query string or Element!');
-
-        this.initModules(options.modules);
-        this.initToolbar();
-        this.initSubToolbar();
-        this.initCanvas();
-    }
-
-    _initWrapper(wrapperEl = '') {
-        if (typeof wrapperEl === 'string') {
-            this.wrapperEl = document.querySelector(wrapperEl);
-        } else {
-            this.wrapperEl = wrapperEl;
+  _initModules(modules = ["crop"]) {
+    this.modules = [];
+    modules.forEach((modl) => {
+      switch (modl) {
+        case "crop": {
+          this.modules.push(new CropModule(this));
+          break;
         }
-        if (!(this.wrapperEl instanceof HTMLElement)) return false;
-        this.el = document.createElement('div');
-        this.el.classList.add('spe-main');
-        this.wrapperEl.appendChild(this.el);
-        return true;
-    }
+        // case 'text': {
+        //     this.modules.push(new TextModule(this));
+        //     break;
+        // }
+        // case 'image': {
+        //     this.modules.push(new ImageModule(this));
+        //     break;
+        // }
+        default:
+      }
+    });
+  }
+  _initCanvas() {
+    this.canvasWrapperEl = document.createElement("div");
+    this.canvasWrapperEl.classList.add("spe-canvas-wrapper");
 
-    _initModules(modules = []) {
-        this.modules = [];
-        modules.forEach(modl => {
-            switch (modl) {
-                case 'crop': {
-                    this.modules.push(new CropModule(this));
-                    break;
-                }
-                // case 'text': {
-                //     this.modules.push(new TextModule(this));
-                //     break;
-                // }
-                case 'image': {
-                    this.modules.push(new ImageModule(this));
-                    break;
-                }
-                default:
-            }
-        })
-    }
-    _initCanvas() {
-        this.canvasWrapperEl = document.createElement('div');
-        this.canvasWrapperEl.classList.add('spe-canvas-wrapper');
+    this.canvasEl = document.createElement("canvas");
+    this.canvasWrapperEl.appendChild(this.canvasEl);
 
-        this.canvasEl = document.createElement('canvas');
-        this.canvasWrapperEl.appendChild(this.canvasEl);
+    this.ctx = this.canvasEl.getContext("2d");
 
-        this.ctx = this.canvasEl.getContext("2d");
+    this.el.appendChild(this.canvasWrapperEl);
 
-        this.el.appendChild(this.canvasWrapperEl);
-    }
+    this.modules.forEach((module) => module.action());
+  }
 
-    _initToolbar() {
-        this.toolbarEl = document.createElement('div');
-        this.toolbarEl.classList.add('spe-toolbar');
-        this.modules.forEach(modl => {
-            const toolbarItem = document.createElement('div');
-            toolbarItem.classList.add('spe-toolbar-item');
+  _initToolbar() {
+    this.toolbarEl = document.createElement("div");
+    this.toolbarEl.classList.add("spe-toolbar");
+    this.modules.forEach((modl) => {
+      const toolbarItem = document.createElement("div");
+      toolbarItem.classList.add("spe-toolbar-item");
 
-            const { icon = TOOLBAR_DEFAULT_ICON, title } = modl.options;
+      const { icon = TOOLBAR_DEFAULT_ICON, title } = modl.options;
 
-            toolbarItem.innerHTML = icon;
-            toolbarItem.setAttribute('title', title);
-            toolbarItem.addEventListener('click', () => {
-                if (modl.menu) {
-                    this.subToolbarEl.innerHTML = '';
-                    this.subToolbarEl.appendChild(modl.menu);
-                    this.subToolbarEl.show();
-                } else {
-                    this.subToolbarEl.hide();
-                }
-                if (modl.action) modl.action();
-            });
-            this.toolbarEl.appendChild(toolbarItem);
-        });
-        this.el.appendChild(this.toolbarEl);
-    }
+      toolbarItem.innerHTML = icon;
+      toolbarItem.setAttribute("title", title);
+      toolbarItem.addEventListener("click", () => {
+        if (modl.menu) {
+          this.subToolbarEl.innerHTML = "";
+          this.subToolbarEl.appendChild(modl.menu);
+          this.subToolbarEl.show();
+        } else {
+          this.subToolbarEl.hide();
+        }
+        if (modl.action) modl.action();
+      });
+      this.toolbarEl.appendChild(toolbarItem);
+    });
+    this.el.appendChild(this.toolbarEl);
+  }
 
-    _initSubToolbar() {
-        this.subToolbarEl = document.createElement('div');
-        this.subToolbarEl.classList.add('spe-sub-toolbar');
+  _initSubToolbar() {
+    this.subToolbarEl = document.createElement("div");
+    this.subToolbarEl.classList.add("spe-sub-toolbar");
 
-        this.subToolbarEl.hide = () => this.subToolbarEl.style.display = 'none';
-        this.subToolbarEl.show = () => this.subToolbarEl.style.display = 'block';
+    this.subToolbarEl.hide = () => (this.subToolbarEl.style.display = "none");
+    this.subToolbarEl.show = () => (this.subToolbarEl.style.display = "block");
 
-        this.el.appendChild(this.subToolbarEl);
-    }
+    this.el.appendChild(this.subToolbarEl);
+  }
 
-    _draw(url) {
-        const img = new Image;
-        img.setAttribute('crossOrigin', 'anonymous');
-        img.src = url;
-        img.onload = () => {
-            this.canvasEl.setAttribute('height', img.height + 'px')
-            this.canvasEl.setAttribute('width', img.width + 'px')
-            this.ctx.drawImage(img, 0, 0);
-        };
-    }
+  _draw(url) {
+    return new Promise((res, rej) => {
+      const img = new Image();
+      img.setAttribute("crossOrigin", "anonymous");
+      img.src = url;
+      img.onload = () => {
+        this.canvasEl.setAttribute("height", img.height + "px");
+        this.canvasEl.setAttribute("width", img.width + "px");
+        this.ctx.drawImage(img, 0, 0);
+        console.log("this.canvasEl.toDataURL()", this.canvasEl.toDataURL());
+        res(this.canvasEl.toDataURL());
+      };
+    });
+  }
 
-    getImage() {
-        return this.canvasEl.toDataURL();
-    }
+  getImage() {
+    return this.canvasEl.toDataURL();
+  }
+
+  crop() {
+    return this.modules[0].cropAction();
+  }
+
+  getCrop() {
+    return this.modules[0].getCrop();
+  }
+
+  setCropRatio(ratio) {
+    return this.modules[0].initCropFrame(ratio);
+  }
 }
-
 
 export default Editor;
